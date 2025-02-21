@@ -1,0 +1,10 @@
+Quand j'étais petit, je vivais pour les jeux vidéos, surtout avec ma vieille console DS Lite sur laquelle j'ai passé des jours sur Pokémon Platine. Récemment, la nostalgie m'a frappé et j'ai décidé de commander la console portable moderne à la mode pour revivre ce genre de beaux moments.
+
+Pendant que je finalisais ma commande, un article a attiré mon attention, un tournoi d'e-sport, organisé par la même entreprise qui fabrique la console que je venais d’acheter, a eu lieu ce mois ci. L’événement s’est tenu dans une ville emblématique, où tradition et modernité se rencontrent dans un océan de gratte-ciels illuminés. Après une finale intense, l’équipe XYZ a décroché la victoire.
+
+Curieux, j’ai continué à explorer la section "Lire plus", et c’est là qu’un autre article m'a bouleversé. Il s'agit du décès d'un ancien premier ministre respecté, notamment pour ses réformes économiques. Trois mots ont résonné dans mon esprit : Repose en paix.
+
+Maintenant, dis-moi : quelles sont les trois premiers mots qui te viennent à l’esprit en pensant à l'endroit où sera érigé le monument pour le défunt premier ministre ?
+Format du flag : CPU{mot1_mot2_mot3_XYZ}
+
+(Challenge inspiré du EH4X CTF 2025)
