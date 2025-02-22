@@ -1,104 +1,82 @@
+#!/usr/bin/env python3
+import math
 from Crypto.PublicKey import RSA
-from Crypto.Util.number import inverse, long_to_bytes
-from sympy import mod_inverse, gcd
-from math import isqrt
+from Crypto.Util.number import long_to_bytes
 
-def load_public_key(pem_file):
-    try:
-        with open(pem_file, 'rb') as f:
-            public_key = RSA.importKey(f.read())
-        print(f"Clé publique chargée : n={public_key.n}, e={public_key.e}")
-        return public_key
-    except Exception as e:
-        print(f"Erreur lors du chargement de la clé publique : {e}")
-        return None
+def continued_fraction(numerator, denominator):
+    """ Calcule le développement en fraction continue de numerator/denominator. """
+    cf = []
+    while denominator:
+        a = numerator // denominator
+        cf.append(a)
+        numerator, denominator = denominator, numerator - a * denominator
+    return cf
 
-def continued_fraction_expansion(a, b):
-    expansion = []
-    while b != 0:
-        expansion.append(a // b)
-        a, b = b, a % b
-    return expansion
-
-def convergents_from_continued_fraction(expansion):
+def convergents_from_cf(cf):
+    """ Génère les convergents à partir d'un développement en fraction continue. """
     convergents = []
-    for i in range(len(expansion)):
-        if i == 0:
-            convergents.append((expansion[0], 1))
-        elif i == 1:
-            convergents.append((expansion[0] * expansion[1] + 1, expansion[1]))
-        else:
-            p0, q0 = convergents[i - 2]
-            p1, q1 = convergents[i - 1]
-            p = expansion[i] * p1 + p0
-            q = expansion[i] * q1 + q0
-            convergents.append((p, q))
+    for i in range(len(cf)):
+        num, den = 1, 0
+        for a in reversed(cf[:i+1]):
+            num, den = a * num + den, num
+        convergents.append((num, den))
     return convergents
 
 def wiener_attack(e, n):
-    expansion = continued_fraction_expansion(e, n)
-    convergents = convergents_from_continued_fraction(expansion)
-
-    for k, d in convergents:
+    """
+    Implémente l'attaque de Wiener.
+    Pour chaque convergent k/d de la fraction continue de e/n, on teste si
+        d_candidate = d
+    est le bon exposant privé.
+    """
+    cf = continued_fraction(e, n)
+    convs = convergents_from_cf(cf)
+    for k, d in convs:
         if k == 0:
             continue
-        phi_n = (e * d - 1) // k
-        x = n - phi_n + 1
-        discriminant = x * x - 4 * n
-        if discriminant >= 0:
-            t = isqrt(discriminant)
-            if t * t == discriminant and (x + t) % 2 == 0:
+        # On vérifie si (e*d - 1) est divisible par k
+        if (e * d - 1) % k != 0:
+            continue
+        phi = (e * d - 1) // k
+        # On calcule S = n - phi + 1 et le discriminant de x^2 - Sx + n = 0
+        S = n - phi + 1
+        discr = S * S - 4 * n
+        if discr >= 0:
+            t = math.isqrt(discr)
+            if t * t == discr and (S + t) % 2 == 0:
+                # On a trouvé d via l'attaque de Wiener
                 return d
     return None
 
-def decrypt_rsa(ciphertext, public_key):
-    try:
-        n = public_key.n
-        e = public_key.e
-
-        # Convert ciphertext to an integer
-        c = int.from_bytes(ciphertext, byteorder='big')
-        print(f"Texte chiffré (en entier) : {c}")
-
-        # Perform Wiener attack to find d
-        d = wiener_attack(e, n)
-        if d is None:
-            print("L'attaque de Wiener a échoué.")
-            return None
-
-        print(f"Exposant privé calculé : d={d}")
-
-        # Decrypt the message
-        m = pow(c, d, n)
-
-        # Convert the message back to bytes
-        plaintext = long_to_bytes(m)
-
-        return plaintext
-    except Exception as e:
-        print(f"Erreur lors du déchiffrement : {e}")
-        return None
-
 def main():
-    public_key = load_public_key('public.pem')
-    if public_key is None:
-        return
+    # 1. Charger la clé publique depuis "public.pem"
+    with open("public.pem", "rb") as f:
+        pub_key = RSA.importKey(f.read())
+    n = pub_key.n
+    e = pub_key.e
+    print("[*] Clé publique chargée.")
+    print(f"    n = {n}")
+    print(f"    e = {e}")
 
-    try:
-        with open('flag.enc', 'rb') as f:
-            ciphertext = f.read()
-        print(f"Texte chiffré (en bytes) : {ciphertext}")
-    except Exception as e:
-        print(f"Erreur lors de la lecture du fichier chiffré : {e}")
-        return
+    # 2. Charger le ciphertext depuis "flag.enc"
+    with open("flag.enc", "r") as f:
+        ciphertext_hex = f.read().strip()
+    c = int(ciphertext_hex, 16)
+    print("[*] Ciphertext chargé.")
 
-    plaintext = decrypt_rsa(ciphertext, public_key)
-    if plaintext:
-        try:
-            print("Decrypted message (as text):", plaintext.decode('utf-8'))
-        except UnicodeDecodeError:
-            print("Le message déchiffré n'est pas du texte UTF-8 valide.")
-            print("Decrypted message (as bytes):", plaintext)
+    # 3. Récupérer d par l'attaque de Wiener
+    print("[*] Début de l'attaque de Wiener pour récupérer d ...")
+    d = wiener_attack(e, n)
+    if d is None:
+        print("[-] Attaque de Wiener échouée.")
+        return
+    print(f"[*] Exposant privé trouvé: d = {d}")
+
+    # 4. Déchiffrer le ciphertext
+    m = pow(c, d, n)
+    flag = long_to_bytes(m)
+    print("[*] Flag déchiffré :")
+    print(flag.decode())
 
 if __name__ == "__main__":
     main()
