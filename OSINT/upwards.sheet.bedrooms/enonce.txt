@@ -7,4 +7,6 @@ Curieux, j’ai continué à explorer la section "Lire plus", et c’est là qu�
 Maintenant, dis-moi : quelles sont les trois premiers mots qui te viennent à l’esprit en pensant à l'endroit où sera érigé le monument pour le défunt premier ministre ?
 Format du flag : CPU{mot1_mot2_mot3_XYZ}
 
+Si vous avez la position approximative, n'hésitez pas à demander une indication pour avoir la position exacte.
+
 (Challenge inspiré du EH4X CTF 2025)
