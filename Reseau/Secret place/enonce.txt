@@ -1,0 +1,3 @@
+Un groupe d’étudiants de l’UMONS, surnommé "CipherNoobs", n'ayant pas assez bien suivi les cours de cryptographie, a tenté de cacher l’emplacement d’un lieu secret lors d'une communication. Leur conversation, échangée via un canal non sécurisé, a été interceptée et enregistrée dans un fichier PCAP.
+
+Votre mission : analyser le trafic réseau, retrouver leurs échanges maladroits et briser leur tentative de cryptographie foireuse pour découvrir l’endroit secret. Une fois la localisation trouvée, vous devrez vous y rendre discrètement, sans éveiller les soupçons. Bonne chance, et surtout… suivez vos cours de cryptographie !
